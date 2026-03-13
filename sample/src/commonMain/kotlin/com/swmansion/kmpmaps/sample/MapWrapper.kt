@@ -1,5 +1,7 @@
 package com.swmansion.kmpmaps.sample
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.swmansion.kmpmaps.core.AndroidMapProperties
@@ -17,7 +19,11 @@ import com.swmansion.kmpmaps.core.MapUISettings
 import com.swmansion.kmpmaps.core.Marker
 import com.swmansion.kmpmaps.core.Polygon
 import com.swmansion.kmpmaps.core.Polyline
+import com.swmansion.kmpmaps.core.WebControlPosition
+import com.swmansion.kmpmaps.core.WebMapControl
+import com.swmansion.kmpmaps.core.WebMapGesture
 import com.swmansion.kmpmaps.core.WebMapProperties
+import com.swmansion.kmpmaps.core.WebUISettings
 import com.swmansion.kmpmaps.googlemaps.Map as GoogleMap
 
 internal data class MapOptions(
@@ -30,7 +36,7 @@ internal data class MapOptions(
             zoom = 14f,
         ),
     val showAllComponents: Boolean = true,
-    val useGoogleMapsMapView: Boolean = true,
+    val useGoogleMapsMapView: Boolean = false,
     val showPointGeoJson: Boolean = false,
     val showPolygonGeoJson: Boolean = false,
     val showLineGeoJson: Boolean = false,
@@ -69,6 +75,46 @@ internal fun MapWrapper(
                 myLocationButtonEnabled = options.showUserLocation,
                 scaleBarEnabled = true,
                 androidUISettings = AndroidUISettings(zoomControlsEnabled = false),
+                webUISettings = WebUISettings(
+                    zoomControl = false,
+                    customJavaScript = """
+                        function kmpSetCenter(lat, lng, zoom) {
+                            if (!map) return;
+                            map.setCenter({ lat, lng });
+                            if (zoom !== undefined) {
+                                map.setZoom(zoom);
+                            }
+                        }
+                        function kmpZoomIn() {
+                            if (map) map.setZoom(map.getZoom() + 1);
+                        }
+                        function kmpZoomOut() {
+                            if (map) map.setZoom(map.getZoom() - 1);
+                        }
+                    """.trimIndent(),
+                    customControls = listOf(
+                        WebMapControl(
+                            id = "zoom-control",
+                            position = WebControlPosition.RIGHT_CENTER,
+                            html = """
+                                <div style="margin-right: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                    <button onclick="kmpZoomIn()" style="background-color: #4285F4; color: white; border: none; border-radius: 8px; width: 44px; height: 44px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 24px; font-weight: bold;">+</button>
+                                    <button onclick="kmpZoomOut()" style="background-color: #4285F4; color: white; border: none; border-radius: 8px; width: 44px; height: 44px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 24px; font-weight: bold;">-</button>
+                                </div>
+                            """.trimIndent(),
+                        ),
+                        WebMapControl(
+                            id = "munich-button",
+                            position = WebControlPosition.BOTTOM_LEFT,
+                            html = """
+                                <button onclick="kmpSetCenter(48.1351, 11.5820, 12)"
+                                    style="margin-left: 10px; margin-bottom: 10px; background-color: #FF0000; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">
+                                    Munich
+                                </button>
+                            """.trimIndent(),
+                        ),
+                    ),
+                ),
             ),
         markers = if (options.showAllComponents) clusterMarkers else emptyList(),
         clusterSettings =

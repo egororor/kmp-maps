@@ -145,6 +145,23 @@ internal fun WebUISettings.toJson() = buildJsonObject {
     mapTypeControlPosition?.let { put("mapTypeControlPosition", it.name) }
     streetViewControlPosition?.let { put("streetViewControlPosition", it.name) }
     rotateControlPosition?.let { put("rotateControlPosition", it.name) }
+
+    put("customControls", buildJsonArray {
+        customControls.forEach { control ->
+            add(control.toJson())
+        }
+    })
+
+    customJavaScript?.let { put("customJavaScript", it) }
+}
+
+/**
+ * Serializes [WebMapControl] to a [JsonObject].
+ */
+internal fun WebMapControl.toJson() = buildJsonObject {
+    put("id", id)
+    put("html", html)
+    put("position", position.name)
 }
 
 /**

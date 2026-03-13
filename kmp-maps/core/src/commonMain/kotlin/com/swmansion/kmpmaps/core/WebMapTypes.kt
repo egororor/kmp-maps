@@ -25,6 +25,47 @@ public data class WebUISettings(
     val mapTypeControlPosition: WebControlPosition? = null,
     val streetViewControlPosition: WebControlPosition? = null,
     val rotateControlPosition: WebControlPosition? = null,
+    /**
+     * List of custom controls to render over the map.
+     * Each control can use built-in JS functions:
+     * - `kmpZoomIn()` / `kmpZoomOut()` - zoom controls
+     * - `kmpSetCenter(lat, lng, zoom)` - move camera to coordinates (zoom optional)
+     * - `kmpCallNative(eventName, jsonData)` - send custom events to Kotlin
+     * - Any custom functions defined in [customJavaScript]
+     */
+    val customControls: List<WebMapControl> = emptyList(),
+    /**
+     * Custom JavaScript code to inject into the map page.
+     * Define global functions that your custom controls can call.
+     * You have access to the `map` variable (Google Maps instance).
+     *
+     * Example:
+     * ```kotlin
+     * customJavaScript = """
+     *     function goToMunich() {
+     *         map.setCenter({ lat: 48.1351, lng: 11.5820 });
+     *         map.setZoom(12);
+     *     }
+     * """
+     * ```
+     */
+    val customJavaScript: String? = null,
+)
+
+/**
+ * Represents a custom HTML control to be rendered over the map.
+ *
+ * @property id Unique identifier for the control. Used to track and update the control.
+ * @property html HTML content to render. Can use built-in JS functions like:
+ *                - `onclick="kmpZoomIn()"` / `onclick="kmpZoomOut()"`
+ *                - `onclick="kmpSetCenter(48.1351, 11.5820, 12)"`
+ *                - `onclick="kmpCallNative('myEvent', '{\"key\": \"value\"}')"`
+ * @property position Position on the map where the control should be placed.
+ */
+public data class WebMapControl(
+    val id: String,
+    val html: String,
+    val position: WebControlPosition,
 )
 
 public data class WebMapRestriction(

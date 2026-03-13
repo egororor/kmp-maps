@@ -16,6 +16,9 @@ let ColorScheme;
 
 const clusterCache = new Map();
 
+// Map of control ID -> { element, position }
+const customControls = new Map();
+
 async function initMap() {
     const { Map } = await google.maps.importLibrary("maps");
     const { AdvancedMarkerElement: MarkerClass, PinElement: PinClass } = await google.maps.importLibrary("marker");
@@ -261,7 +264,7 @@ function updateMapUISettings(settings) {
     const web = settings.web;
 
     const options = {
-        disableDefaultUI: web.disableDefaultUI,
+        disableDefaultUI: web ? web.disableDefaultUI : false,
         draggable: settings.scrollEnabled,
         scrollwheel: settings.zoomEnabled,
     };
@@ -297,11 +300,79 @@ function updateMapUISettings(settings) {
 
             options.fullscreenControl = web.fullscreenControl;
         }
+
+        // Inject custom JavaScript BEFORE creating custom controls
+        if (web.customJavaScript) {
+            try {
+                // Use indirect eval to ensure global scope
+                window.eval(web.customJavaScript);
+            } catch (e) {
+                console.error("Error executing custom JavaScript:", e);
+            }
+        }
+
+        // Handle custom controls (after custom JS is loaded)
+        updateCustomControls(web.customControls || []);
     } else {
         options.zoomControl = settings.zoomEnabled;
     }
 
     map.setOptions(options);
+}
+
+function updateCustomControls(controlsData) {
+    if (!map) return;
+
+    const newControlIds = new Set(controlsData.map(c => c.id));
+
+    // Remove controls that are no longer in the list
+    for (const [id, controlInfo] of customControls) {
+        if (!newControlIds.has(id)) {
+            removeControlFromMap(controlInfo);
+            customControls.delete(id);
+        }
+    }
+
+    // Add or update controls
+    controlsData.forEach(controlData => {
+        const position = google.maps.ControlPosition[controlData.position] || google.maps.ControlPosition.RIGHT_CENTER;
+        const existing = customControls.get(controlData.id);
+
+        if (existing) {
+            // Update existing control
+            if (existing.position !== position) {
+                // Position changed - remove and re-add
+                removeControlFromMap(existing);
+                const element = createControlElement(controlData.html);
+                map.controls[position].push(element);
+                customControls.set(controlData.id, { element, position });
+            } else {
+                // Just update HTML
+                existing.element.innerHTML = controlData.html;
+            }
+        } else {
+            // Add new control
+            const element = createControlElement(controlData.html);
+            map.controls[position].push(element);
+            customControls.set(controlData.id, { element, position });
+        }
+    });
+}
+
+function createControlElement(html) {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div;
+}
+
+function removeControlFromMap(controlInfo) {
+    const controls = map.controls[controlInfo.position];
+    for (let i = 0; i < controls.getLength(); i++) {
+        if (controls.getAt(i) === controlInfo.element) {
+            controls.removeAt(i);
+            break;
+        }
+    }
 }
 
 function updateCircles(data) {
