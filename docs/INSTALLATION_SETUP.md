@@ -80,9 +80,11 @@ Add the following key to your `Info.plist`:
 ```
 ### 🖥️ Desktop Setup
 
-The JVM desktop implementation uses `compose-webview-multiplatform` (v1.7.0+), which requires [KCEF](https://github.com/DatL4g/KCEF/tree/master). We recommend following the setup guide in the official [compose-webview-multiplatform repository](https://github.com/KevinnZou/compose-webview-multiplatform/blob/main/README.desktop.md).
+The JVM desktop implementation uses `compose-webview-multiplatform` (v1.9.40+), which internally uses JCEF (Java Chromium Embedded Framework). We recommend following the setup guide in the official [compose-webview-multiplatform repository](https://github.com/KevinnZou/compose-webview-multiplatform/blob/main/README.desktop.md).
 
-KCEF must be initialized before the map is displayed. Here is a basic example:
+JCEF must be initialized via KCEF before the map is displayed. Starting from version 1.9.40, if you run your app with JetBrains Runtime (JBR), the bundled JCEF will be used automatically without downloading additional packages.
+
+Here is a basic example:
 
 ```kotlin
 import dev.datlag.kcef.KCEF
@@ -93,6 +95,7 @@ import kotlinx.coroutines.withContext
 fun main() = application {
     Window(title = "KMP Maps - Desktop", onCloseRequest = ::exitApplication) {
         var initialized by remember { mutableStateOf(false) }
+        var restartRequired by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
             withContext(Dispatchers.IO) {
@@ -103,14 +106,23 @@ fun main() = application {
                         settings { noSandbox = true }
                     },
                     onError = { it?.printStackTrace() },
+                    onRestartRequired = { restartRequired = true },
                 )
             }
         }
 
-        if (initialized) {
+        if (restartRequired) {
+            Text("Restart required to complete initialization.")
+        } else if (initialized) {
             App()
         } else {
             Text("Initializing Map Engine...")
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                KCEF.disposeBlocking()
+            }
         }
     }
 }

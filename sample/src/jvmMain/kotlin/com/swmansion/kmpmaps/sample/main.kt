@@ -1,6 +1,7 @@
 package com.swmansion.kmpmaps.sample
 
 import androidx.compose.material.Text
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import kotlinx.coroutines.withContext
 fun main() = application {
     Window(title = "KMP Maps - Desktop", onCloseRequest = ::exitApplication) {
         var initialized by remember { mutableStateOf(false) }
+        var restartRequired by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
             withContext(Dispatchers.IO) {
@@ -26,14 +28,23 @@ fun main() = application {
                         settings { noSandbox = true }
                     },
                     onError = { it?.printStackTrace() },
+                    onRestartRequired = { restartRequired = true },
                 )
             }
         }
 
-        if (initialized) {
+        if (restartRequired) {
+            Text("Restart required to complete initialization.")
+        } else if (initialized) {
             App()
         } else {
             Text("Initializing Map Engine...")
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                KCEF.disposeBlocking()
+            }
         }
     }
 }
