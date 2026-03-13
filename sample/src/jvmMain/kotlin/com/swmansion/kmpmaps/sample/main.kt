@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import dev.datlag.kcef.KCEF
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,7 +22,8 @@ fun main() = application {
             withContext(Dispatchers.IO) {
                 KCEF.init(
                     builder = {
-                        installDir(File("kcef-bundle"))
+                        // When running with JetBrains Runtime (JBR), JCEF is bundled
+                        // and no download/install directory is needed
                         progress { onInitialized { initialized = true } }
                         settings { noSandbox = true }
                     },

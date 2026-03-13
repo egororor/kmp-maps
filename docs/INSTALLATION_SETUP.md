@@ -82,13 +82,12 @@ Add the following key to your `Info.plist`:
 
 The JVM desktop implementation uses `compose-webview-multiplatform` (v1.9.40+), which internally uses JCEF (Java Chromium Embedded Framework). We recommend following the setup guide in the official [compose-webview-multiplatform repository](https://github.com/KevinnZou/compose-webview-multiplatform/blob/main/README.desktop.md).
 
-JCEF must be initialized via KCEF before the map is displayed. Starting from version 1.9.40, if you run your app with JetBrains Runtime (JBR), the bundled JCEF will be used automatically without downloading additional packages.
+**Important:** When running with **JetBrains Runtime (JBR)**, the bundled JCEF will be used automatically. No additional downloads or `kcef-bundle` folder is needed.
 
-Here is a basic example:
+JCEF must be initialized via KCEF before the map is displayed:
 
 ```kotlin
 import dev.datlag.kcef.KCEF
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -101,7 +100,8 @@ fun main() = application {
             withContext(Dispatchers.IO) {
                 KCEF.init(
                     builder = {
-                        installDir(File("kcef-bundle"))
+                        // When running with JBR, JCEF is bundled
+                        // No installDir needed
                         progress { onInitialized { initialized = true } }
                         settings { noSandbox = true }
                     },
@@ -127,6 +127,8 @@ fun main() = application {
     }
 }
 ```
+
+**Note:** If you're NOT using JBR, KCEF will automatically download CEF binaries to a `kcef-bundle` folder on first run.
 
 For a full example, refer to [main.kt](https://github.com/software-mansion/kmp-maps/blob/main/sample/src/jvmMain/kotlin/com/swmansion/kmpmaps/sample/main.kt).
 

@@ -18,5 +18,6 @@ local.properties
 secrets.properties
 xcuserdata
 **/Pods/
+sample/jcef-bundle/
 sample/kcef-bundle/
 kmp-maps/core/bin
