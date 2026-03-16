@@ -59,12 +59,13 @@ fun App() {
             }
 
         MapsScreen(
-            map = { modifier, onSettingsClick -> 
+            map = { modifier, onSettingsClick, settingsExpanded ->
                 MapWrapper(
-                    modifier = modifier, 
-                    options = options.copy(onSettingsClick = onSettingsClick), 
+                    modifier = modifier,
+                    options = options.copy(onSettingsClick = onSettingsClick),
+                    settingsExpanded = settingsExpanded,
                     geoJsonLayers = geoJsonLayers
-                ) 
+                )
             },
             controls = { MapSettingsControls(options) { options = options.it() } },
         )

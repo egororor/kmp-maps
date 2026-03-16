@@ -48,6 +48,7 @@ internal data class MapOptions(
 internal fun MapWrapper(
     modifier: Modifier = Modifier,
     options: MapOptions,
+    settingsExpanded: Boolean = false,
     geoJsonLayers: List<GeoJsonLayer>,
 ) {
     val settingsButtonHtml = """
@@ -102,33 +103,41 @@ internal fun MapWrapper(
                             if (map) map.setZoom(map.getZoom() - 1);
                         }
                     """.trimIndent(),
-                    customControls = listOf(
-                        WebMapControl(
-                            id = "zoom-control",
-                            position = WebControlPosition.RIGHT_CENTER,
-                            html = """
-                                <div style="margin-right: 10px; display: flex; flex-direction: column; gap: 8px;">
-                                    <button onclick="kmpZoomIn()" style="background-color: #4285F4; color: white; border: none; border-radius: 8px; width: 44px; height: 44px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 24px; font-weight: bold;">+</button>
-                                    <button onclick="kmpZoomOut()" style="background-color: #4285F4; color: white; border: none; border-radius: 8px; width: 44px; height: 44px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 24px; font-weight: bold;">-</button>
-                                </div>
-                            """.trimIndent(),
-                        ),
-                        WebMapControl(
-                            id = "munich-button",
-                            position = WebControlPosition.BOTTOM_LEFT,
-                            html = """
-                                <button onclick="kmpSetCenter(48.1351, 11.5820, 12)"
-                                    style="margin-left: 10px; margin-bottom: 10px; background-color: #FF0000; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">
-                                    Munich
-                                </button>
-                            """.trimIndent(),
-                        ),
-                        WebMapControl(
-                            id = "settings-button",
-                            position = WebControlPosition.TOP_RIGHT,
-                            html = settingsButtonHtml,
-                        ),
-                    ),
+                    customControls = buildList {
+                        if (!settingsExpanded) {
+                            add(
+                                WebMapControl(
+                                    id = "zoom-control",
+                                    position = WebControlPosition.RIGHT_CENTER,
+                                    html = """
+                                        <div style="margin-right: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                            <button onclick="kmpZoomIn()" style="background-color: #4285F4; color: white; border: none; border-radius: 8px; width: 44px; height: 44px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 24px; font-weight: bold;">+</button>
+                                            <button onclick="kmpZoomOut()" style="background-color: #4285F4; color: white; border: none; border-radius: 8px; width: 44px; height: 44px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 24px; font-weight: bold;">-</button>
+                                        </div>
+                                    """.trimIndent(),
+                                )
+                            )
+                            add(
+                                WebMapControl(
+                                    id = "munich-button",
+                                    position = WebControlPosition.BOTTOM_LEFT,
+                                    html = """
+                                        <button onclick="kmpSetCenter(48.1351, 11.5820, 12)"
+                                            style="margin-left: 10px; margin-bottom: 10px; background-color: #FF0000; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center;">
+                                            Munich
+                                        </button>
+                                    """.trimIndent(),
+                                )
+                            )
+                        }
+                        add(
+                            WebMapControl(
+                                id = "settings-button",
+                                position = WebControlPosition.TOP_RIGHT,
+                                html = settingsButtonHtml,
+                            )
+                        )
+                    },
                 ),
             ),
         markers = if (options.showAllComponents) clusterMarkers else emptyList(),

@@ -44,14 +44,15 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun MapsScreen(
-    map: @Composable (Modifier, onSettingsClick: () -> Unit) -> Unit,
+    map: @Composable (Modifier, onSettingsClick: () -> Unit, settingsExpanded: Boolean) -> Unit,
     controls: @Composable () -> Unit,
 ) {
     if (isJvm()) {
         var expanded by remember { mutableStateOf(false) }
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            val collapsedHeight = 28.dp
-            val maxExpandedHeight = (maxHeight - 120.dp).coerceAtLeast(collapsedHeight)
+            val collapsedHeight = 0.dp
+            val handleHeight = 28.dp
+            val maxExpandedHeight = (maxHeight - 120.dp).coerceAtLeast(handleHeight)
             val expandedHeight = (maxHeight * 0.6f).coerceAtMost(maxExpandedHeight)
             val sheetHeight by animateDpAsState(
                 targetValue = if (expanded) expandedHeight else collapsedHeight,
@@ -60,37 +61,37 @@ internal fun MapsScreen(
 
             Column(Modifier.fillMaxSize()) {
                 Column(Modifier.weight(1f).fillMaxWidth()) {
-                    map(Modifier.fillMaxSize()) { expanded = true }
+                    map(Modifier.fillMaxSize(), { expanded = !expanded }, expanded)
                 }
-                Surface(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(sheetHeight),
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                    tonalElevation = 6.dp,
-                ) {
-                    Column(Modifier.fillMaxSize().clipToBounds()) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(collapsedHeight)
-                                    .clickable { expanded = !expanded },
-                            contentAlignment = Alignment.Center,
-                        ) {
+                if (expanded) {
+                    Surface(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(sheetHeight),
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                        tonalElevation = 6.dp,
+                    ) {
+                        Column(Modifier.fillMaxSize().clipToBounds()) {
                             Box(
                                 modifier =
                                     Modifier
-                                        .width(40.dp)
-                                        .height(4.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
-                                            RoundedCornerShape(2.dp),
-                                        )
-                            )
-                        }
-                        AnimatedVisibility(expanded) {
+                                        .fillMaxWidth()
+                                        .height(handleHeight)
+                                        .clickable { expanded = false },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .width(40.dp)
+                                            .height(4.dp)
+                                            .background(
+                                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
+                                                RoundedCornerShape(2.dp),
+                                            )
+                                )
+                            }
                             Column(
                                 modifier =
                                     Modifier
@@ -118,7 +119,7 @@ internal fun MapsScreen(
                 }
             }
         ) {
-            map(Modifier.fillMaxSize()) { showBottomSheet = true }
+            map(Modifier.fillMaxSize(), { showBottomSheet = true }, false)
         }
         if (showBottomSheet) {
             ModalBottomSheet(
