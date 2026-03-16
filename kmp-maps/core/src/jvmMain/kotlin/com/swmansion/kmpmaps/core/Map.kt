@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,8 @@ import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewStateWithHTMLData
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /** JVM implementation of the Map composable using Google Maps with JCEF (via compose-webview-multiplatform). */
 @Composable
@@ -43,6 +46,7 @@ public actual fun Map(
     onMapLongClick: ((Coordinates) -> Unit)?,
     onPOIClick: ((Coordinates) -> Unit)?,
     onMapLoaded: (() -> Unit)?,
+    onCustomEvent: ((name: String, params: String) -> Unit)?,
     geoJsonLayers: List<GeoJsonLayer>,
     customMarkerContent: Map<String, @Composable (Marker) -> Unit>,
     webCustomMarkerContent: Map<String, (Marker) -> String>,
@@ -54,6 +58,16 @@ public actual fun Map(
         htmlContent = loadHTMLContent(apiKey, cameraPosition, properties)
     }
 
+    val currentOnCameraMove by rememberUpdatedState(onCameraMove)
+    val currentOnMarkerClick by rememberUpdatedState(onMarkerClick)
+    val currentOnCircleClick by rememberUpdatedState(onCircleClick)
+    val currentOnPolygonClick by rememberUpdatedState(onPolygonClick)
+    val currentOnPolylineClick by rememberUpdatedState(onPolylineClick)
+    val currentOnMapClick by rememberUpdatedState(onMapClick)
+    val currentOnPOIClick by rememberUpdatedState(onPOIClick)
+    val currentOnMapLoaded by rememberUpdatedState(onMapLoaded)
+    val currentOnCustomEvent by rememberUpdatedState(onCustomEvent)
+
     if (htmlContent != null) {
         val state = rememberWebViewStateWithHTMLData(data = htmlContent!!)
         val loadingState = state.loadingState
@@ -62,22 +76,20 @@ public actual fun Map(
         val navigator = rememberWebViewNavigator()
         val jsBridge = com.multiplatform.webview.jsbridge.rememberWebViewJsBridge(navigator)
 
-        LaunchedEffect(jsBridge, markers) {
+        LaunchedEffect(jsBridge) {
             registerMapEvents(
                 jsBridge = jsBridge,
-                markers = markers,
-                circles = circles,
-                polygons = polygons,
-                polylines = polylines,
+                markers = { markers },
                 clusterSettings = clusterSettings,
-                onCameraMove = onCameraMove,
-                onMarkerClick = onMarkerClick,
-                onCircleClick = onCircleClick,
-                onPolygonClick = onPolygonClick,
-                onPolylineClick = onPolylineClick,
-                onMapClick = onMapClick,
-                onPOIClick = onPOIClick,
-                onMapLoaded = onMapLoaded,
+                onCameraMove = { currentOnCameraMove?.invoke(it) },
+                onMarkerClick = { currentOnMarkerClick?.invoke(it) },
+                onCircleClick = { id -> circles.find { it.getId() == id }?.let { currentOnCircleClick?.invoke(it) } },
+                onPolygonClick = { id -> polygons.find { it.getId() == id }?.let { currentOnPolygonClick?.invoke(it) } },
+                onPolylineClick = { id -> polylines.find { it.getId() == id }?.let { currentOnPolylineClick?.invoke(it) } },
+                onMapClick = { coords -> currentOnMapClick?.invoke(coords) },
+                onPOIClick = { coords -> currentOnPOIClick?.invoke(coords) },
+                onMapLoaded = { currentOnMapLoaded?.invoke() },
+                onCustomEvent = { name, params -> currentOnCustomEvent?.invoke(name, params) },
             )
         }
 
@@ -154,19 +166,17 @@ public actual fun Map(
  */
 internal fun registerMapEvents(
     jsBridge: WebViewJsBridge,
-    markers: List<Marker>,
-    circles: List<Circle>,
-    polygons: List<Polygon>,
-    polylines: List<Polyline>,
+    markers: () -> List<Marker>,
     clusterSettings: ClusterSettings,
     onCameraMove: ((CameraPosition) -> Unit)?,
     onMarkerClick: ((Marker) -> Unit)?,
-    onCircleClick: ((Circle) -> Unit)?,
-    onPolygonClick: ((Polygon) -> Unit)?,
-    onPolylineClick: ((Polyline) -> Unit)?,
+    onCircleClick: ((String) -> Unit)?,
+    onPolygonClick: ((String) -> Unit)?,
+    onPolylineClick: ((String) -> Unit)?,
     onMapClick: ((Coordinates) -> Unit)?,
     onPOIClick: ((Coordinates) -> Unit)?,
     onMapLoaded: (() -> Unit)?,
+    onCustomEvent: ((name: String, params: String) -> Unit)?,
 ) {
     jsBridge.registerHandler("onCameraMove") { params, _ ->
         val position = Json.decodeFromString<CameraPosition>(params)
@@ -175,7 +185,7 @@ internal fun registerMapEvents(
 
     jsBridge.registerHandler("onMarkerClick") { params, _ ->
         val markerId = params
-        val clickedMarker = markers.find { marker -> marker.getId() == markerId }
+        val clickedMarker = markers().find { marker -> marker.getId() == markerId }
         clickedMarker?.let { onMarkerClick?.invoke(it) }
     }
 
@@ -191,16 +201,27 @@ internal fun registerMapEvents(
 
     jsBridge.registerHandler("onMapLoaded") { _, _ -> onMapLoaded?.invoke() }
 
+    jsBridge.registerHandler("kmpCallNative") { params, _ ->
+        try {
+            val json = Json.parseToJsonElement(params).jsonObject
+            val method = json["method"]?.jsonPrimitive?.content ?: ""
+            val data = json["data"]?.jsonPrimitive?.content ?: ""
+            onCustomEvent?.invoke(method, data)
+        } catch (e: Exception) {
+            onCustomEvent?.invoke(params, "")
+        }
+    }
+
     jsBridge.registerHandler("onCircleClick") { id, _ ->
-        circles.find { it.getId() == id }?.let { onCircleClick?.invoke(it) }
+        onCircleClick?.invoke(id)
     }
 
     jsBridge.registerHandler("onPolygonClick") { id, _ ->
-        polygons.find { it.getId() == id }?.let { onPolygonClick?.invoke(it) }
+        onPolygonClick?.invoke(id)
     }
 
     jsBridge.registerHandler("onPolylineClick") { id, _ ->
-        polylines.find { it.getId() == id }?.let { onPolylineClick?.invoke(it) }
+        onPolylineClick?.invoke(id)
     }
 
     jsBridge.registerHandler("onClusterClick") { params, _ ->

@@ -2,17 +2,24 @@ package com.swmansion.kmpmaps.sample
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.swmansion.kmpmaps.core.GeoJsonLayer
 import com.swmansion.kmpmaps.core.MapConfiguration
+import com.swmansion.kmpmaps.core.Marker
 import com.swmansion.kmpmaps.core.PointStyle
+import kotlin.time.Duration.Companion.seconds
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -52,7 +59,13 @@ fun App() {
             }
 
         MapsScreen(
-            map = { MapWrapper(modifier = it, options = options, geoJsonLayers = geoJsonLayers) },
+            map = { modifier, onSettingsClick -> 
+                MapWrapper(
+                    modifier = modifier, 
+                    options = options.copy(onSettingsClick = onSettingsClick), 
+                    geoJsonLayers = geoJsonLayers
+                ) 
+            },
             controls = { MapSettingsControls(options) { options = options.it() } },
         )
     }

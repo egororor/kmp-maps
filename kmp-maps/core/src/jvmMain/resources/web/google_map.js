@@ -88,6 +88,7 @@ async function initMap() {
             }
         }
     });
+
 }
 
 function mapColorScheme(themeName, ColorSchemeLib) {
@@ -559,4 +560,11 @@ function sendToKotlin(method, data) {
     } else {
         console.error(`Bridge not found for method: ${method}`);
     }
+}
+
+function kmpCallNative(method, data) {
+    sendToKotlin("kmpCallNative", JSON.stringify({
+        method: method,
+        data: data || ""
+    }));
 }
