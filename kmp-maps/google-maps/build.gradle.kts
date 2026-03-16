@@ -67,7 +67,7 @@ dokka { dokkaPublications.configureEach { suppressInheritedMembers = true } }
 
 mavenPublishing {
     publishToMavenCentral()
-    signAllPublications()
+    //signAllPublications()
     pom {
         name = "KMP Maps"
         description = "Universal map component for Compose Multiplatform."
