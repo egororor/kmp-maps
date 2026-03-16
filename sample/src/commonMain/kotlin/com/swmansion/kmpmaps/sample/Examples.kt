@@ -36,9 +36,6 @@ import com.swmansion.kmpmaps.core.Coordinates
 import com.swmansion.kmpmaps.core.Marker
 import com.swmansion.kmpmaps.core.Polygon
 import com.swmansion.kmpmaps.core.Polyline
-import kmp_maps.sample.generated.resources.Res
-import kmp_maps.sample.generated.resources.swmansion_logo
-import org.jetbrains.compose.resources.painterResource
 
 val softwareMansionPin = Coordinates(latitude = 50.0486, longitude = 19.9654)
 val cracowMainStationPin = Coordinates(latitude = 50.06839615782847, longitude = 19.947491884231567)
