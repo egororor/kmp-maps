@@ -129,17 +129,6 @@ val clusterMarkers =
 
 val customMarkerContent =
     mapOf<String, @Composable (Marker) -> Unit>(
-        "swmansion_marker" to
-            {
-                Box(modifier = Modifier.height(40.dp).width(80.dp)) {
-                    Image(
-                        painter = painterResource(Res.drawable.swmansion_logo),
-                        contentDescription = "Software Mansion logo",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Fit,
-                    )
-                }
-            },
         "colored_pin_marker" to
             { marker ->
                 Column(
