@@ -152,7 +152,11 @@ internal fun WebUISettings.toJson() = buildJsonObject {
  *
  * @return A string in "#RRGGBB" format.
  */
-internal fun Color.toHex() = "#%06X".format(0xFFFFFF and toArgb())
+
+internal fun Color.toHex(): String {
+    val rgb = 0xFFFFFF and toArgb()
+    return "#" + rgb.toString(16).padStart(6, '0').uppercase()
+}
 
 /**
  * Serializes a [Circle] object to a [JsonObject].

@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetBrains.compose)
@@ -21,6 +24,7 @@ kotlin {
     }
 
     jvm()
+    wasmJs { browser() }
 
     cocoapods {
         summary = "Universal map component for Compose Multiplatform."
@@ -37,6 +41,8 @@ kotlin {
         }
     }
 
+    applyDefaultHierarchyTemplate()
+
     sourceSets {
         commonMain.dependencies {
             implementation(compose.components.resources)
@@ -47,6 +53,18 @@ kotlin {
             implementation(libs.jetBrains.androidX.lifecycle.runtimeCompose)
             implementation(libs.jetBrains.androidX.lifecycle.viewmodelCompose)
             api(project(":kmp-maps:core"))
+        }
+
+        val webViewMain by registering {
+            dependsOn(commonMain.get())
+        }
+
+        jvmMain {
+            dependsOn(webViewMain.get())
+        }
+
+        wasmJsMain {
+            dependsOn(webViewMain.get())
         }
     }
 }

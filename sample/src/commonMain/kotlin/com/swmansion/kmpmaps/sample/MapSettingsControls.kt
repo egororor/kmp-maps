@@ -42,7 +42,7 @@ internal fun MapSettingsControls(
             selected = options.mapType == MapType.HYBRID,
         )
     }
-    if (!isJvm()) {
+    if (!isNonMobile()) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(
                 onClick = { updateOptions { copy(mapTheme = MapTheme.SYSTEM) } },
@@ -102,7 +102,7 @@ internal fun MapSettingsControls(
             )
         },
     )
-    if (!isJvm()) {
+    if (!isNonMobile()) {
         ListItem(
             headlineContent = { Text("Show my location") },
             modifier =
@@ -142,7 +142,7 @@ internal fun MapSettingsControls(
         },
     )
 
-    if (!isJvm()) {
+    if (!isNonMobile()) {
         Button(
             onClick = { updateOptions { copy(cameraPosition = getRandomPosition()) } },
             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),

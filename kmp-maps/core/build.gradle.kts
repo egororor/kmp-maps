@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetBrains.compose)
@@ -21,6 +24,9 @@ kotlin {
     }
 
     jvm()
+    wasmJs { browser() }
+
+    applyDefaultHierarchyTemplate()
 
     sourceSets {
         commonMain.dependencies {
@@ -42,10 +48,23 @@ kotlin {
             implementation(libs.google.maps.android.mapsComposeUtils)
         }
 
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.jetBrains.kotlinX.coroutinesSwing)
-            implementation(libs.composeNativeWebview)
+        val webViewMain by registering {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.composeNativeWebview)
+            }
+        }
+
+        jvmMain {
+            dependsOn(webViewMain.get())
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.jetBrains.kotlinX.coroutinesSwing)
+            }
+        }
+
+        wasmJsMain {
+            dependsOn(webViewMain.get())
         }
     }
 }

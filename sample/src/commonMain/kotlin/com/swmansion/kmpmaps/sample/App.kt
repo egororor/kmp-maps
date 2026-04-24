@@ -25,7 +25,7 @@ fun App() {
     }
 
     MaterialTheme(
-        if (isSystemInDarkTheme() && !isJvm()) darkColorScheme() else lightColorScheme()
+        if (isSystemInDarkTheme() && !isNonMobile()) darkColorScheme() else lightColorScheme()
     ) {
         val geoJsonLayers =
             remember(

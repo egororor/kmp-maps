@@ -1,6 +1,7 @@
 package com.swmansion.kmpmaps.core
 
-import java.io.BufferedReader
+import com.swmansion.kmpmaps.core.generated.resources.Res
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 /**
  * Injects configuration data into the HTML and JavaScript templates for the WebView.
@@ -13,12 +14,13 @@ import java.io.BufferedReader
  * @param properties The configuration properties for the map.
  * @return A complete HTML string with embedded JavaScript, ready to be loaded into a WebView.
  */
-internal fun loadHTMLContent(
+@OptIn(ExperimentalResourceApi::class)
+internal suspend fun loadHTMLContent(
     apiKey: String,
     cameraPosition: CameraPosition?,
     properties: MapProperties?,
 ): String {
-    val html = readResource("web/google_map.html")
+    val html = readResource("files/web/google_map.html")
     val bounds = cameraPosition?.bounds
     val fitBoundsCall =
         if (bounds != null) {
@@ -29,7 +31,7 @@ internal fun loadHTMLContent(
             ""
         }
     val js =
-        readResource("web/google_map.js")
+        readResource("files/web/google_map.js")
             .replace("{{INITIAL_MAP_ID}}", properties?.webMapProperties?.mapId ?: "DEMO_MAP_ID")
             .replace("{{INITIAL_COLOR_SCHEME}}", properties?.mapTheme?.name ?: MapTheme.SYSTEM.name)
             .replace("{{INITIAL_LAT}}", (cameraPosition?.coordinates?.latitude ?: 0f).toString())
@@ -41,18 +43,12 @@ internal fun loadHTMLContent(
 }
 
 /**
- * Reads a text resource from the application assets or classpath. It attempts to locate the
- * resource using multiple class loader strategies to ensure compatibility across different platform
- * environments.
+ * Reads a text resource using Compose Resources.
  *
- * @param path The relative path to the resource (e.g., "web/google_map.html").
+ * @param path The path to the resource relative to composeResources (e.g., "files/web/google_map.html").
  * @return The content of the resource as a string.
  */
-private fun readResource(path: String): String {
-    val stream =
-        object {}.javaClass.getResourceAsStream("/$path")
-            ?: object {}.javaClass.getResourceAsStream(path)
-            ?: Thread.currentThread().contextClassLoader.getResourceAsStream(path)
-            ?: throw IllegalArgumentException("Resource not found: $path")
-    return stream.bufferedReader().use(BufferedReader::readText)
-}
+
+@OptIn(ExperimentalResourceApi::class)
+private suspend fun readResource(path: String): String =
+    Res.readBytes(path).decodeToString()

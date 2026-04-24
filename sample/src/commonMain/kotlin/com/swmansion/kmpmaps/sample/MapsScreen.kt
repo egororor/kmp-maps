@@ -40,7 +40,7 @@ internal fun MapsScreen(map: @Composable (Modifier) -> Unit, controls: @Composab
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    if (isJvm()) {
+    if (isNonMobile()) {
         Row(Modifier.fillMaxSize()) {
             map(Modifier.weight(1f).fillMaxHeight())
             Column(

@@ -1,6 +1,8 @@
+@file:OptIn(ExperimentalWasmDsl::class)
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 version = "0.9.1"
@@ -29,6 +31,11 @@ kotlin {
     }
 
     jvm()
+
+    wasmJs {
+        browser()
+        binaries.executable()
+    }
 
     cocoapods {
         summary = "Universal map component for Compose Multiplatform."
