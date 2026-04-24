@@ -1,9 +1,9 @@
 package com.swmansion.kmpmaps.core
 
-import com.multiplatform.webview.jsbridge.IJsMessageHandler
-import com.multiplatform.webview.jsbridge.JsMessage
-import com.multiplatform.webview.jsbridge.WebViewJsBridge
-import com.multiplatform.webview.web.WebViewNavigator
+import io.github.kdroidfilter.webview.jsbridge.IJsMessageHandler
+import io.github.kdroidfilter.webview.jsbridge.JsMessage
+import io.github.kdroidfilter.webview.jsbridge.WebViewJsBridge
+import io.github.kdroidfilter.webview.web.WebViewNavigator
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 

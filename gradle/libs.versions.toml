@@ -8,12 +8,11 @@ androidXActivity = "1.11.0"
 androidXLifecycle = "2.9.4"
 buildkonfig = "0.17.1"
 compose = "1.9.0"
-composeWebViewMultiplatformDesktop = "2.0.3"
+composeNativeWebview = "1.0.0-beta-02"
 dokka = "2.1.0"
 googleMapsCompose = "6.12.2"
 googleMapsComposeUtils = "6.12.2"
 jetbrainsKotlinJvm = "2.3.0"
-kcef = "2024.04.20.4"
 kotlin = "2.3.0"
 kotlinXCoroutines = "1.10.2"
 kotlinXSerializationJson = "1.9.0"
@@ -22,6 +21,7 @@ playServicesMaps = "19.2.0"
 
 [libraries]
 androidX-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidXActivity" }
+composeNativeWebview = { module = "io.github.kdroidfilter:composewebview", version.ref = "composeNativeWebview" }
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 google-android-gms-playServicesMaps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 google-maps-android-mapsCompose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMapsCompose" }
@@ -31,8 +31,6 @@ jetBrains-androidX-lifecycle-viewmodelCompose = { module = "org.jetbrains.androi
 jetBrains-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 jetBrains-kotlinX-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinXCoroutines" }
 jetBrains-kotlinX-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinXSerializationJson" }
-kcef = { module = "dev.datlag:kcef", version.ref = "kcef" }
-kevinnZou-composeWebViewMultiplatformDesktop = { module = "io.github.kevinnzou:compose-webview-multiplatform-desktop", version.ref = "composeWebViewMultiplatformDesktop" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

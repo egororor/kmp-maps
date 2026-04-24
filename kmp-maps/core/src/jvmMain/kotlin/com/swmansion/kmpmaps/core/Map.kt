@@ -10,11 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.multiplatform.webview.jsbridge.rememberWebViewJsBridge
-import com.multiplatform.webview.web.LoadingState
-import com.multiplatform.webview.web.WebView
-import com.multiplatform.webview.web.rememberWebViewNavigator
-import com.multiplatform.webview.web.rememberWebViewStateWithHTMLData
+import io.github.kdroidfilter.webview.jsbridge.rememberWebViewJsBridge
+import io.github.kdroidfilter.webview.web.LoadingState
+import io.github.kdroidfilter.webview.web.WebView
+import io.github.kdroidfilter.webview.web.rememberWebViewNavigator
+import io.github.kdroidfilter.webview.web.rememberWebViewStateWithHTMLData
 
 /** JVM implementation of the Map composable using Google Maps. */
 @Composable

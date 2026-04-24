@@ -69,7 +69,6 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.jetBrains.kotlinX.coroutinesSwing)
-            implementation(libs.kcef)
         }
     }
 }
@@ -105,26 +104,12 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
 
-        jvmArgs(
-            "--add-opens",
-            "java.desktop/sun.awt=ALL-UNNAMED",
-            "--add-opens",
-            "java.desktop/sun.lwawt=ALL-UNNAMED",
-            "--add-opens",
-            "java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
-        )
+        jvmArgs("--enable-native-access=ALL-UNNAMED")
     }
 }
 
 tasks.withType<JavaExec> {
-    jvmArgs(
-        "--add-opens",
-        "java.desktop/sun.awt=ALL-UNNAMED",
-        "--add-opens",
-        "java.desktop/sun.lwawt=ALL-UNNAMED",
-        "--add-opens",
-        "java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
-    )
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
 }
 
 dependencies { debugImplementation(compose.uiTooling) }

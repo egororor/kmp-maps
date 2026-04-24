@@ -45,7 +45,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.jetBrains.kotlinX.coroutinesSwing)
-            implementation(libs.kevinnZou.composeWebViewMultiplatformDesktop)
+            implementation(libs.composeNativeWebview)
         }
     }
 }
